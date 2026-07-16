@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-hero contact-hero"><p class="eyebrow">Contact us</p><h1>We’re never far away.</h1><p>Questions about rooms, directions or planning a day trip? Call, email or message us—we are available around the clock.</p></section>
+<section class="section contact-grid">
+  <div><p class="eyebrow dark">Come say hello</p><h2>Find us in the heart of Bodinayakanur.</h2><p class="large-copy">A convenient base with easy transport links and direct access to the scenic routes of Theni and the Western Ghats.</p></div>
+  <div class="contact-details">
+    <article><span>01</span><div><h3>Address</h3><p>82, Kamaraj Bazaar<br>Bodinayakanur, Theni District<br>Tamil Nadu, India</p><a class="text-link" href="https://www.google.com/maps/search/?api=1&query=82%20Kamaraj%20Bazaar%20Bodinayakanur" target="_blank" rel="noopener">Get directions <b>→</b></a></div></article>
+    <article><span>02</span><div><h3>Phone & WhatsApp</h3><p><a href="tel:+919092977055">{{ phone_display }}</a><br>Guest assistance available 24/7</p></div></article>
+    <article><span>03</span><div><h3>Email</h3><p><a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a></p></div></article>
+  </div>
+</section>
+{% endblock %}

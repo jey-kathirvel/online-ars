@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-hero booking-hero"><p class="eyebrow">Book your stay</p><h1>Your next escape starts here.</h1><p>Our secure real-time online booking experience is on its way. Until then, our team can confirm your room directly on WhatsApp or by phone.</p></section>
+<section class="section booking-options">
+  <article class="booking-card featured"><span class="status">Fastest response</span><h2>Book on WhatsApp</h2><p>Share your check-in date, check-out date, number of guests and preferred room. We will reply with availability and the final tariff.</p><a class="button" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Start WhatsApp booking</a></article>
+  <article class="booking-card"><span class="status">Call anytime</span><h2>Speak with us</h2><p>We are open 24/7 and happy to help you choose a room or plan your arrival.</p><a class="text-link" href="tel:+919092977055">Call {{ phone_display }} <span>→</span></a></article>
+  <article class="booking-card"><span class="status">Coming soon</span><h2>Instant online booking</h2><p>Live room availability, secure full payment and immediate booking confirmation will be available here soon.</p></article>
+</section>
+{% endblock %}

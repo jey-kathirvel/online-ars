@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Akshat Royal Stay offers clean AC and non-AC rooms, thoughtful hospitality and an ideal base to explore Theni and the Western Ghats.">
+  <title>{{ title }} | Akshat Royal Stay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/site.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Akshat Royal Stay home">
+      <span class="brand-mark">AR</span>
+      <span><strong>Akshat Royal Stay</strong><small>Bodinayakanur · Theni</small></span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
+    <nav id="main-nav" class="nav" aria-label="Main navigation">
+      <a class="{{ 'active' if active == 'home' else '' }}" href="/">Home</a>
+      <a class="{{ 'active' if active == 'rooms' else '' }}" href="/rooms">Rooms</a>
+      <a class="{{ 'active' if active == 'explore' else '' }}" href="/explore">Explore</a>
+      <a class="{{ 'active' if active == 'contact' else '' }}" href="/contact">Contact</a>
+      <a class="button button-small" href="/book">Book a stay</a>
+    </nav>
+  </header>
+  <main id="content">{% block content %}{% endblock %}</main>
+  <footer class="footer">
+    <div>
+      <a class="brand footer-brand" href="/"><span class="brand-mark">AR</span><span><strong>Akshat Royal Stay</strong><small>Comfort with a personal touch</small></span></a>
+      <p>Clean, comfortable rooms at the gateway to Munnar, Meghamalai, Thekkady and the beautiful Western Ghats.</p>
+    </div>
+    <div><h3>Visit</h3><p>82, Kamaraj Bazaar<br>Bodinayakanur, Theni District<br>Tamil Nadu, India</p></div>
+    <div><h3>Contact</h3><p><a href="tel:+919092977055">{{ phone_display }}</a><br><a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a><br>Open 24 hours</p></div>
+    <p class="copyright">© 2026 Akshat Royal Stay. All rights reserved.</p>
+  </footer>
+  <a class="whatsapp" href="{{ whatsapp_url }}" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">WhatsApp</a>
+  <script src="{{ url_for('static', path='/js/site.js') }}" defer></script>
+</body>
+</html>

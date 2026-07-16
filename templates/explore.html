@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-hero explore-hero"><p class="eyebrow">Beyond your room</p><h1>One stay. A world of day trips.</h1><p>From misty tea country to sacred temples and refreshing waterfalls, Bodinayakanur places remarkable experiences within easy reach.</p></section>
+<section class="section destinations">
+  {% set places = [
+    ('01','Munnar','Tea gardens · Mountain views','A beloved hill station of rolling tea plantations, waterfalls and cool mountain air—ideal for a full-day scenic escape.'),
+    ('02','Meghamalai','High Wavy Mountains · Nature','A quieter mountain paradise with winding ghat roads, green valleys, reservoirs and abundant wildlife.'),
+    ('03','Thekkady','Wildlife · Spice country','Cruise Periyar Lake, explore spice plantations and experience one of Kerala’s most celebrated nature destinations.'),
+    ('04','Kodaikanal','Lake · Pine forests','Enjoy Coaker’s Walk, the lake, Pillar Rocks, flower gardens and the timeless charm of the Princess of Hill Stations.'),
+    ('05','Suruli Falls','Waterfalls · Western Ghats','Feel the mist and refreshing energy of this celebrated cascade amid the natural beauty of the Western Ghats.'),
+    ('06','Vaigai Dam','Gardens · Family day out','Tranquil waters, landscaped gardens and mountain views make this an easy, family-friendly excursion.'),
+    ('07','Veerapandi Temple','Heritage · Spirituality','Visit the revered Gowmariamman Temple on the banks of the Mullai River and experience its living traditions.'),
+    ('08','Kuchanur Temple','Pilgrimage · Peace','Seek blessings at one of India’s rare temples dedicated to Lord Saneeswaran, set in the Theni countryside.')
+  ] %}
+  <div class="section-heading"><p class="eyebrow dark">Curated for curious travellers</p><h2>Choose your direction.</h2><p>Our team can help with local advice, travel planning and car rentals.</p></div>
+  <div class="destination-grid">{% for number, name, meta, copy in places %}<article><span>{{ number }}</span><p class="place-meta">{{ meta }}</p><h3>{{ name }}</h3><p>{{ copy }}</p></article>{% endfor %}</div>
+</section>
+<section class="location-banner"><div><p class="eyebrow">Travel your way</p><h2>Need a car and a plan?</h2><p>Tell us what you love—mountains, wildlife, temples or waterfalls—and we will help shape the day.</p></div><a class="button outline-button" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Plan on WhatsApp</a></section>
+{% endblock %}
