@@ -98,6 +98,114 @@ def availability(room_type_id: int, check_in_at: datetime, check_out_at: datetim
     }
 
 
+@router.get("/calendar")
+def booking_calendar(
+    room_type_id: int,
+    start_date: str | None = None,
+    days: int = 30,
+    stay_days: int = 1,
+    check_in_time: str = "12:00",
+    number_of_rooms: int = 1,
+    db: Session = Depends(get_db),
+):
+    if not 1 <= days <= 365:
+        raise HTTPException(
+            400,
+            "Calendar range must be between 1 and 365 days",
+        )
+
+    if not 1 <= stay_days <= 30:
+        raise HTTPException(
+            400,
+            "Stay duration must be between 1 and 30 days",
+        )
+
+    if not 1 <= number_of_rooms <= 5:
+        raise HTTPException(
+            400,
+            "Number of rooms must be between 1 and 5",
+        )
+
+    try:
+        calendar_start = (
+            datetime.strptime(start_date, "%Y-%m-%d").date()
+            if start_date
+            else datetime.utcnow().date()
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            400,
+            "Start date must use YYYY-MM-DD format",
+        ) from exc
+
+    try:
+        arrival_time = datetime.strptime(
+            check_in_time,
+            "%H:%M",
+        ).time()
+    except ValueError as exc:
+        raise HTTPException(
+            400,
+            "Check-in time must use HH:MM format",
+        ) from exc
+
+    room_type = get_active_room_type(
+        db,
+        room_type_id,
+    )
+
+    inventory = []
+    disabled_dates = []
+    next_available_date = None
+
+    for offset in range(days):
+        current_date = calendar_start + timedelta(days=offset)
+
+        check_in_at = datetime.combine(
+            current_date,
+            arrival_time,
+        )
+
+        check_out_at = check_in_at + timedelta(
+            days=stay_days,
+        )
+
+        rooms = available_rooms(
+            db,
+            room_type_id,
+            check_in_at,
+            check_out_at,
+        )
+
+        available_count = len(rooms)
+        is_available = available_count >= number_of_rooms
+        date_value = current_date.isoformat()
+
+        inventory.append({
+            "date": date_value,
+            "available": is_available,
+            "available_count": available_count,
+        })
+
+        if not is_available:
+            disabled_dates.append(date_value)
+        elif next_available_date is None:
+            next_available_date = date_value
+
+    return {
+        "room_type_id": room_type.id,
+        "room_type": room_type.name,
+        "start_date": calendar_start.isoformat(),
+        "days": days,
+        "stay_days": stay_days,
+        "check_in_time": check_in_time,
+        "number_of_rooms": number_of_rooms,
+        "disabled_dates": disabled_dates,
+        "next_available_date": next_available_date,
+        "inventory": inventory,
+    }
+
+
 @router.post("/order")
 def create_order(payload: BookingRequest, db: Session = Depends(get_db)):
     now = datetime.utcnow()
