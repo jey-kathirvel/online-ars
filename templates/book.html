@@ -26,7 +26,23 @@
     <div id="bookingError" class="booking-error" role="alert" hidden></div>
     <button id="payButton" class="button dark-button pay-button" type="submit" disabled>Pay full amount & confirm</button>
   </form>
-  <aside class="booking-assurance"><p class="eyebrow dark">Book with confidence</p><h3>Live room inventory</h3><p>Your availability comes directly from Akshat Royal Stay’s property system.</p><h3>Secure Razorpay checkout</h3><p>Payment details are handled securely by Razorpay and are never stored on this website.</p><h3>Need help?</h3><p>Call <a href="tel:+919092977055">{{ phone_display }}</a> or message us on WhatsApp.</p></aside>
+  <aside class="booking-assurance">
+    <p class="eyebrow dark">Book with confidence</p>
+    <h3>Live room inventory</h3><p>Your availability comes directly from Akshat Royal Stay’s property system.</p>
+    <h3>Secure Razorpay checkout</h3><p>Payment details are handled securely by Razorpay and are never stored on this website.</p>
+    <div class="stay-comforts">
+      <p class="eyebrow dark">Comfort around the clock</p>
+      <ul>
+        <li><span>24×7</span><div><strong>Guest support</strong><small>Friendly assistance whenever you need us</small></div></li>
+        <li><span>24×7</span><div><strong>Hot water</strong><small>Available throughout your stay</small></div></li>
+        <li><span>24×7</span><div><strong>Power backup</strong><small>Dependable backup for essential comfort</small></div></li>
+        <li><span>Wi-Fi</span><div><strong>Always connected</strong><small>Complimentary internet access</small></div></li>
+        <li><span>TV</span><div><strong>In-room entertainment</strong><small>Television with online viewing options</small></div></li>
+      </ul>
+    </div>
+    <figure class="assurance-room-photo"><img src="/static/images/ars-room-nonac.webp" alt="A clean and comfortable Akshat Royal Stay double room" loading="lazy"><figcaption>Your comfortable stay awaits.</figcaption></figure>
+    <h3>Need help?</h3><p>Call <a href="tel:+919092977055">{{ phone_display }}</a> or message us on WhatsApp.</p>
+  </aside>
 </section>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="{{ url_for('static', path='/js/booking.js') }}" defer></script>
