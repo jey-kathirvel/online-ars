@@ -99,3 +99,32 @@ def test_online_booking_holds_room_and_requires_full_payment(monkeypatch):
     assert db.query(BookingPayment).count() == 1
     db.close()
     app.dependency_overrides.clear()
+
+
+def test_active_test_room_type_appears_in_public_dropdown():
+    app.dependency_overrides[get_db] = override_db
+    db = TestingSession()
+    now = datetime.utcnow()
+    db.add(RoomType(id=2, name="E2E Test Room", total_rooms=1, room_rate=5,
+                    is_active=True, created_at=now))
+    db.add(Room(id=2, room_number="TEST-01", room_type_id=2,
+                is_active=True, created_at=now))
+    db.commit()
+    db.close()
+
+    response = TestClient(app).get("/book")
+
+    assert response.status_code == 200
+    assert "E2E Test Room" in response.text
+    assert "5.0/night" in response.text
+    check_in = (datetime.utcnow() + timedelta(days=2)).replace(microsecond=0)
+    availability = TestClient(app).get("/api/booking/availability", params={
+        "room_type_id": 2,
+        "check_in_at": check_in.isoformat(),
+        "check_out_at": (check_in + timedelta(days=1)).isoformat(),
+        "number_of_rooms": 1,
+        "occupants_per_room": 2,
+    })
+    assert availability.status_code == 200
+    assert availability.json()["total"] == 5.25
+    app.dependency_overrides.clear()

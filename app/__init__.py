@@ -1,12 +1,16 @@
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from .config import get_settings
 from .booking_routes import router as booking_router
+from .booking_models import Room, RoomType
+from .database import get_db
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,16 +48,30 @@ def create_app() -> FastAPI:
         return render(request, "rooms.html", active="rooms", title="Rooms & rates")
 
     @app.get("/book", response_class=HTMLResponse)
-    async def book(request: Request) -> HTMLResponse:
-        return render(
-            request, "book.html", active="book", title="Book your stay",
-            room_types=(
+    async def book(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
+        try:
+            rows = (
+                db.query(RoomType)
+                .join(Room, Room.room_type_id == RoomType.id)
+                .filter(RoomType.is_active.is_(True), Room.is_active.is_(True))
+                .distinct()
+                .order_by(RoomType.id)
+                .all()
+            )
+            room_types = tuple(
+                {"id": row.id, "name": row.name, "rate": float(row.room_rate)}
+                for row in rows
+            )
+        except SQLAlchemyError:
+            room_types = (
                 {"id": 1, "name": "AC Double Room", "rate": 1899},
                 {"id": 2, "name": "Non-AC Double Room", "rate": 1499},
                 {"id": 3, "name": "Non-AC Single Room", "rate": 1099},
-            ),
+            )
+        return render(
+            request, "book.html", active="book", title="Book your stay",
+            room_types=room_types,
         )
-
     @app.get("/booking/confirmed", response_class=HTMLResponse)
     async def booking_confirmed(request: Request, booking_no: str = "") -> HTMLResponse:
         return render(
