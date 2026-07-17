@@ -1,61 +1,599 @@
 {% extends "base.html" %}
+
 {% block content %}
-<section class="page-hero booking-hero"><p class="eyebrow">Secure online booking</p><h1>Choose your stay.<br>We’ll hold the room.</h1><p>See live availability, pay the complete amount securely through Razorpay, and receive an immediate confirmation.</p></section>
-<section class="section online-booking-shell">
-  <form id="onlineBookingForm" class="online-booking-form" novalidate>
-    <div class="booking-step"><span>01</span><div><p class="eyebrow dark">Your stay</p><h2>When are you arriving?</h2></div></div>
-    <div class="stay-planner">
-      <label class="modern-field room-type-field"><span class="field-label"><b>⌂</b> Room type</span><select name="room_type_id" required><option value="">Choose a room</option>{% for room in room_types %}<option value="{{ room.id }}">{{ room.name }} — ₹{{ room.rate }}/night</option>{% endfor %}</select></label>
-      <div class="stay-date-card arrival-card">
-        <div class="stay-card-heading"><span class="stay-card-icon">↘</span><div><small>ARRIVAL</small><strong>Check in</strong></div></div>
-        <label class="modern-field"><span class="field-label">Date</span><input name="check_in_date" type="date" required></label>
-        <fieldset class="time-field modern-field"><legend>Time</legend><div><select name="check_in_hour" required aria-label="Check-in hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_in_minute" required aria-label="Check-in minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_in_period" required aria-label="Check-in AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
-      </div>
-      <div class="stay-date-card departure-card">
-        <div class="stay-card-heading"><span class="stay-card-icon">↗</span><div><small>DEPARTURE</small><strong>Check out</strong></div></div>
-        <label class="modern-field"><span class="field-label">Date</span><input name="check_out_date" type="date" required></label>
-        <fieldset class="time-field modern-field"><legend>Time</legend><div><select name="check_out_hour" required aria-label="Check-out hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_out_minute" required aria-label="Check-out minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_out_period" required aria-label="Check-out AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
-      </div>
-      <div class="stay-occupancy-card">
-        <div class="stay-card-heading"><span class="stay-card-icon">♙</span><div><small>ROOM SETUP</small><strong>Guests & rooms</strong></div></div>
-        <label class="modern-field"><span class="field-label">Number of rooms</span><input name="number_of_rooms" type="number" min="1" max="5" value="1" required></label>
-        <label class="modern-field"><span class="field-label">Occupants per room</span><select name="occupants_per_room" required><option value="1">1 occupant</option><option value="2" selected>2 occupants — included</option><option value="3">3 occupants — ₹500 extra/day + GST</option></select></label>
-        <p class="occupancy-note"><span>✓</span> Two guests are included in every room tariff.</p>
-      </div>
-    </div>
-    <div id="availabilityPanel" class="availability-panel" aria-live="polite">Select your stay details to check live availability.</div>
 
-    <div class="booking-step"><span>02</span><div><p class="eyebrow dark">Guest details</p><h2>Who should we welcome?</h2></div></div>
-    <div class="form-grid guest-grid">
-      <label>Full name<input name="guest_name" autocomplete="name" maxlength="150" required></label>
-      <label>Mobile number<input name="mobile" inputmode="numeric" autocomplete="tel" minlength="10" maxlength="10" required></label>
-      <label>Email address<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
-    </div>
+<section class="page-hero booking-hero">
+  <p class="eyebrow">Secure online booking</p>
 
-    <div class="booking-step"><span>03</span><div><p class="eyebrow dark">Full payment</p><h2>Review and confirm.</h2></div></div>
-    <div id="priceSummary" class="price-summary"><p>Your GST-inclusive total will appear after availability is confirmed.</p></div>
-    <p class="payment-note">A specific room will be held for 10 minutes when you continue to Razorpay. Online bookings require complete payment; partial payment remains available only through ADS ERP staff.</p>
-    <div id="bookingError" class="booking-error" role="alert" hidden></div>
-    <button id="payButton" class="button dark-button pay-button" type="submit" disabled>Pay full amount & confirm</button>
-  </form>
-  <aside class="booking-assurance">
-    <p class="eyebrow dark">Book with confidence</p>
-    <h3>Live room inventory</h3><p>Your availability comes directly from Akshat Royal Stay’s property system.</p>
-    <h3>Secure Razorpay checkout</h3><p>Payment details are handled securely by Razorpay and are never stored on this website.</p>
-    <div class="stay-comforts">
-      <p class="eyebrow dark">Comfort around the clock</p>
-      <ul>
-        <li><span>24×7</span><div><strong>Guest support</strong><small>Friendly assistance whenever you need us</small></div></li>
-        <li><span>24×7</span><div><strong>Hot water</strong><small>Available throughout your stay</small></div></li>
-        <li><span>24×7</span><div><strong>Power backup</strong><small>Dependable backup for essential comfort</small></div></li>
-        <li><span>Wi-Fi</span><div><strong>Always connected</strong><small>Complimentary internet access</small></div></li>
-        <li><span>TV</span><div><strong>In-room entertainment</strong><small>Television with online viewing options</small></div></li>
-      </ul>
-    </div>
-    <figure class="assurance-room-photo"><img src="/static/images/ars-room-nonac.webp" alt="A clean and comfortable Akshat Royal Stay double room" loading="lazy"><figcaption>Your comfortable stay awaits.</figcaption></figure>
-    <h3>Need help?</h3><p>Call <a href="tel:+919092977055">{{ phone_display }}</a> or message us on WhatsApp.</p>
-  </aside>
+  <h1>
+    Choose your stay.<br>
+    We’ll hold the room.
+  </h1>
+
+  <p>
+    See live availability, pay the complete amount securely through
+    Razorpay, and receive an immediate confirmation.
+  </p>
 </section>
+
+<section class="section online-booking-shell">
+
+  <form
+    id="onlineBookingForm"
+    class="online-booking-form"
+    novalidate
+  >
+
+    <div class="booking-step">
+      <span>01</span>
+
+      <div>
+        <p class="eyebrow dark">Your stay</p>
+        <h2>When are you arriving?</h2>
+      </div>
+    </div>
+
+    <div class="stay-planner">
+
+      <label class="modern-field room-type-field">
+
+        <span class="field-label">
+          <b>⌂</b>
+          Room type
+        </span>
+
+        <select
+          name="room_type_id"
+          required
+        >
+          <option value="">Choose a room</option>
+
+          {% for room in room_types %}
+          <option value="{{ room.id }}">
+            {{ room.name }} — ₹{{ room.rate }}/night
+          </option>
+          {% endfor %}
+        </select>
+
+      </label>
+
+      <div class="stay-date-card arrival-card">
+
+        <div class="stay-card-heading">
+
+          <span class="stay-card-icon">↘</span>
+
+          <div>
+            <small>ARRIVAL</small>
+            <strong>Check in</strong>
+          </div>
+
+        </div>
+
+        <label class="modern-field">
+
+          <span class="field-label">
+            Date
+          </span>
+
+          <input
+            id="checkInDate"
+            name="check_in_date"
+            type="date"
+            required
+          >
+
+        </label>
+
+        <fieldset class="time-field modern-field">
+
+          <legend>Time</legend>
+
+          <div>
+
+            <select
+              name="check_in_hour"
+              required
+              aria-label="Check-in hour"
+            >
+              {% for hour in range(1,13) %}
+              <option value="{{ hour }}">
+                {{ '%02d'|format(hour) }}
+              </option>
+              {% endfor %}
+            </select>
+
+            <select
+              name="check_in_minute"
+              required
+              aria-label="Check-in minute"
+            >
+              <option>00</option>
+              <option>15</option>
+              <option>30</option>
+              <option>45</option>
+            </select>
+
+            <select
+              name="check_in_period"
+              required
+              aria-label="Check-in AM or PM"
+            >
+              <option>AM</option>
+              <option>PM</option>
+            </select>
+
+          </div>
+
+        </fieldset>
+
+      </div>
+
+      <div class="stay-date-card departure-card">
+
+        <div class="stay-card-heading">
+
+          <span class="stay-card-icon">↗</span>
+
+          <div>
+            <small>DEPARTURE</small>
+            <strong>Check out</strong>
+          </div>
+
+        </div>
+
+        <label class="modern-field">
+
+          <span class="field-label">
+            Date
+          </span>
+
+          <input
+            id="checkOutDate"
+            name="check_out_date"
+            type="date"
+            required
+          >
+
+        </label>
+
+        <fieldset class="time-field modern-field">
+
+          <legend>Time</legend>
+
+          <div>
+
+            <select
+              name="check_out_hour"
+              required
+              aria-label="Check-out hour"
+            >
+              {% for hour in range(1,13) %}
+              <option value="{{ hour }}">
+                {{ '%02d'|format(hour) }}
+              </option>
+              {% endfor %}
+            </select>
+
+            <select
+              name="check_out_minute"
+              required
+              aria-label="Check-out minute"
+            >
+              <option>00</option>
+              <option>15</option>
+              <option>30</option>
+              <option>45</option>
+            </select>
+
+            <select
+              name="check_out_period"
+              required
+              aria-label="Check-out AM or PM"
+            >
+              <option>AM</option>
+              <option>PM</option>
+            </select>
+
+          </div>
+
+        </fieldset>
+
+      </div>
+
+      <div class="stay-occupancy-card">
+
+        <div class="stay-card-heading">
+
+          <span class="stay-card-icon">♙</span>
+
+          <div>
+            <small>ROOM SETUP</small>
+            <strong>Guests & rooms</strong>
+          </div>
+
+        </div>
+
+        <label class="modern-field">
+
+          <span class="field-label">
+            Number of rooms
+          </span>
+
+          <input
+            name="number_of_rooms"
+            type="number"
+            min="1"
+            max="5"
+            value="1"
+            required
+          >
+
+        </label>
+
+        <label class="modern-field">
+
+          <span class="field-label">
+            Occupants per room
+          </span>
+
+          <select
+            name="occupants_per_room"
+            required
+          >
+            <option value="1">
+              1 occupant
+            </option>
+
+            <option value="2" selected>
+              2 occupants — included
+            </option>
+
+            <option value="3">
+              3 occupants — ₹500 extra/day + GST
+            </option>
+          </select>
+
+        </label>
+
+        <p class="occupancy-note">
+          <span>✓</span>
+          Two guests are included in every room tariff.
+        </p>
+
+      </div>
+
+    </div>
+
+    <section
+      id="bookingCalendarSection"
+      class="booking-calendar-section"
+      aria-labelledby="bookingCalendarTitle"
+    >
+
+      <div class="booking-calendar-header">
+
+        <div>
+
+          <p class="eyebrow dark">
+            Live availability
+          </p>
+
+          <h3 id="bookingCalendarTitle">
+            Select your check-in date
+          </h3>
+
+          <p id="bookingCalendarDescription">
+            Choose a room type to view available and sold-out dates.
+          </p>
+
+        </div>
+
+        <div class="booking-calendar-controls">
+
+          <button
+            id="calendarPreviousButton"
+            class="calendar-navigation-button"
+            type="button"
+            aria-label="Show previous month"
+          >
+            ←
+          </button>
+
+          <strong
+            id="calendarMonthLabel"
+            aria-live="polite"
+          >
+            Calendar
+          </strong>
+
+          <button
+            id="calendarNextButton"
+            class="calendar-navigation-button"
+            type="button"
+            aria-label="Show next month"
+          >
+            →
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        id="calendarLoading"
+        class="booking-calendar-loading"
+        hidden
+      >
+        Checking live availability…
+      </div>
+
+      <div
+        id="bookingCalendar"
+        class="booking-calendar"
+        aria-live="polite"
+      ></div>
+
+      <div class="booking-calendar-legend">
+
+        <span>
+          <i class="calendar-legend-marker available"></i>
+          Available
+        </span>
+
+        <span>
+          <i class="calendar-legend-marker selected"></i>
+          Selected
+        </span>
+
+        <span>
+          <i class="calendar-legend-marker sold-out"></i>
+          Sold out
+        </span>
+
+      </div>
+
+      <div
+        id="calendarSuggestion"
+        class="calendar-suggestion"
+        hidden
+      >
+
+        <div>
+
+          <strong>
+            Your selected date is unavailable.
+          </strong>
+
+          <span id="calendarSuggestionText"></span>
+
+        </div>
+
+        <button
+          id="useSuggestedDateButton"
+          class="button button-small"
+          type="button"
+        >
+          Use suggested date
+        </button>
+
+      </div>
+
+    </section>
+
+    <div
+      id="availabilityPanel"
+      class="availability-panel"
+      aria-live="polite"
+    >
+      Select your stay details to check live availability.
+    </div>
+
+    <div class="booking-step">
+
+      <span>02</span>
+
+      <div>
+        <p class="eyebrow dark">Guest details</p>
+        <h2>Who should we welcome?</h2>
+      </div>
+
+    </div>
+
+    <div class="form-grid guest-grid">
+
+      <label>
+        Full name
+
+        <input
+          name="guest_name"
+          autocomplete="name"
+          maxlength="150"
+          required
+        >
+      </label>
+
+      <label>
+        Mobile number
+
+        <input
+          name="mobile"
+          inputmode="numeric"
+          autocomplete="tel"
+          minlength="10"
+          maxlength="10"
+          required
+        >
+      </label>
+
+      <label>
+        Email address
+
+        <input
+          name="email"
+          type="email"
+          autocomplete="email"
+          maxlength="254"
+          required
+        >
+      </label>
+
+    </div>
+
+    <div class="booking-step">
+
+      <span>03</span>
+
+      <div>
+        <p class="eyebrow dark">Full payment</p>
+        <h2>Review and confirm.</h2>
+      </div>
+
+    </div>
+
+    <div
+      id="priceSummary"
+      class="price-summary"
+    >
+      <p>
+        Your GST-inclusive total will appear after availability is confirmed.
+      </p>
+    </div>
+
+    <p class="payment-note">
+      A specific room will be held for 10 minutes when you continue to
+      Razorpay. Online bookings require complete payment; partial payment
+      remains available only through ADS ERP staff.
+    </p>
+
+    <div
+      id="bookingError"
+      class="booking-error"
+      role="alert"
+      hidden
+    ></div>
+
+    <button
+      id="payButton"
+      class="button dark-button pay-button"
+      type="submit"
+      disabled
+    >
+      Pay full amount & confirm
+    </button>
+
+  </form>
+
+  <aside class="booking-assurance">
+
+    <p class="eyebrow dark">
+      Book with confidence
+    </p>
+
+    <h3>Live room inventory</h3>
+
+    <p>
+      Your availability comes directly from Akshat Royal Stay’s property
+      system.
+    </p>
+
+    <h3>Secure Razorpay checkout</h3>
+
+    <p>
+      Payment details are handled securely by Razorpay and are never stored
+      on this website.
+    </p>
+
+    <div class="stay-comforts">
+
+      <p class="eyebrow dark">
+        Comfort around the clock
+      </p>
+
+      <ul>
+
+        <li>
+          <span>24×7</span>
+
+          <div>
+            <strong>Guest support</strong>
+            <small>Friendly assistance whenever you need us</small>
+          </div>
+        </li>
+
+        <li>
+          <span>24×7</span>
+
+          <div>
+            <strong>Hot water</strong>
+            <small>Available throughout your stay</small>
+          </div>
+        </li>
+
+        <li>
+          <span>24×7</span>
+
+          <div>
+            <strong>Power backup</strong>
+            <small>Dependable backup for essential comfort</small>
+          </div>
+        </li>
+
+        <li>
+          <span>Wi-Fi</span>
+
+          <div>
+            <strong>Always connected</strong>
+            <small>Complimentary internet access</small>
+          </div>
+        </li>
+
+        <li>
+          <span>TV</span>
+
+          <div>
+            <strong>In-room entertainment</strong>
+            <small>Television with online viewing options</small>
+          </div>
+        </li>
+
+      </ul>
+
+    </div>
+
+    <figure class="assurance-room-photo">
+
+      <img
+        src="/static/images/ars-room-nonac.webp"
+        alt="A clean and comfortable Akshat Royal Stay double room"
+        loading="lazy"
+      >
+
+      <figcaption>
+        Your comfortable stay awaits.
+      </figcaption>
+
+    </figure>
+
+    <h3>Need help?</h3>
+
+    <p>
+      Call
+      <a href="tel:+919092977055">
+        {{ phone_display }}
+      </a>
+      or message us on WhatsApp.
+    </p>
+
+  </aside>
+
+</section>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="{{ url_for('static', path='/js/booking.js') }}" defer></script>
+
+<script
+  src="{{ url_for('static', path='/js/booking.js') }}"
+  defer
+></script>
+
 {% endblock %}
