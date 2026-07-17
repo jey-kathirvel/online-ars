@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     razorpay_key_secret: str = ""
     booking_gst_percent: float = 5.0
     booking_hold_minutes: int = 10
+    extra_occupant_rate: float = 500.0
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

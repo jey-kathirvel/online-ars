@@ -72,14 +72,17 @@ def test_online_booking_holds_room_and_requires_full_payment(monkeypatch):
     request = {
         "guest_name": "Akshat Guest", "mobile": "9092977055",
         "email": "guest@example.com", "room_type_id": 1,
-        "check_in_at": check_in.isoformat(), "number_of_days": 1, "number_of_rooms": 1,
+        "check_in_at": check_in.isoformat(),
+        "check_out_at": (check_in + timedelta(days=1)).isoformat(),
+        "number_of_rooms": 1, "occupants_per_room": 2,
     }
     order = client.post("/api/booking/order", json=request)
     assert order.status_code == 200
     assert order.json()["amount"] == 199395
     unavailable = client.get("/api/booking/availability", params={
         "room_type_id": 1, "check_in_at": check_in.isoformat(),
-        "number_of_days": 1, "number_of_rooms": 1,
+        "check_out_at": (check_in + timedelta(days=1)).isoformat(),
+        "number_of_rooms": 1, "occupants_per_room": 2,
     })
     assert unavailable.json()["available"] is False
     confirmation = client.post("/api/booking/confirm", json={

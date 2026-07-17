@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
+from math import ceil
 
 from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
@@ -16,12 +17,26 @@ def calculate_checkout(check_in: datetime, days: int) -> datetime:
     return check_in + timedelta(hours=24 * days)
 
 
-def calculate_price(rate, rooms: int, days: int, gst_percent: float):
-    subtotal = (Decimal(str(rate)) * rooms * days).quantize(Decimal("0.01"))
+def calculate_stay_days(check_in: datetime, check_out: datetime) -> int:
+    seconds = (check_out - check_in).total_seconds()
+    if seconds <= 0:
+        raise ValueError("Check-out must be after check-in")
+    days = ceil(seconds / (24 * 60 * 60))
+    if days > 30:
+        raise ValueError("Stay cannot exceed 30 billed days")
+    return days
+
+
+def calculate_price(rate, rooms: int, days: int, gst_percent: float,
+                    occupants_per_room: int = 2, extra_occupant_rate=0):
+    room_amount = Decimal(str(rate)) * rooms * days
+    extra_count = max(0, occupants_per_room - 2) * rooms
+    extra_amount = Decimal(str(extra_occupant_rate)) * extra_count * days
+    subtotal = (room_amount + extra_amount).quantize(Decimal("0.01"))
     gst = (subtotal * Decimal(str(gst_percent)) / 100).quantize(
         Decimal("0.01"), rounding=ROUND_HALF_UP
     )
-    return subtotal, gst, subtotal + gst
+    return subtotal, extra_amount.quantize(Decimal("0.01")), gst, subtotal + gst
 
 
 def lock_room_type(db: Session, room_type_id: int) -> None:
