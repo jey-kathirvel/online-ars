@@ -40,3 +40,7 @@ body{background-color:var(--paper);background-image:radial-gradient(circle at 8%
 @media(max-width:850px){.stay-comforts{margin-left:-2rem;margin-right:-2rem}.assurance-room-photo{margin-left:-2rem;margin-right:-2rem}.assurance-room-photo img{height:300px}}
 
 .time-field{border:0;padding:0;margin:0;min-width:0}.time-field legend{font-size:.8rem;font-weight:700;letter-spacing:.03em;margin-bottom:.5rem}.time-field>div{display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:.45rem}.time-field select{display:block;width:100%;padding:1rem .65rem;border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;border-radius:0}.time-field select:focus{outline:2px solid #078087;outline-offset:1px}
+
+/* Modern peacock brand mark */
+.brand-logo-mark{width:52px;height:68px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))}.site-header .brand{gap:.65rem}.site-header .brand strong{font-size:1.2rem}.footer-logo-mark{width:68px;height:92px}.footer-brand{align-items:center}.footer-brand strong{font-size:1.35rem}.footer-brand small{color:#9bc9bd}
+@media(max-width:600px){.brand-logo-mark{width:42px;height:58px}.site-header .brand strong{font-size:1rem}.site-header .brand small{font-size:.58rem}}
