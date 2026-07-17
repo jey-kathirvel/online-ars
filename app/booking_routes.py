@@ -14,6 +14,7 @@ from .booking_service import (
 )
 from .config import get_settings
 from .database import get_db
+from .email_service import BookingEmail, send_booking_confirmation
 
 
 router = APIRouter(prefix="/api/booking", tags=["booking"])
@@ -199,4 +200,13 @@ def confirm_payment(payload: ConfirmationRequest, db: Session = Depends(get_db))
         amount=booking.total_amount, currency="INR", status="CAPTURED", created_at=now,
     ))
     db.commit()
+    send_booking_confirmation(BookingEmail(
+        recipient=booking.email or "", guest_name=booking.guest_name,
+        booking_no=booking.booking_no, room_type=get_active_room_type(db, booking.room_type_id).name,
+        check_in_at=booking.check_in_at, check_out_at=booking.check_out_at,
+        number_of_rooms=booking.number_of_rooms, number_of_days=booking.number_of_days,
+        subtotal_amount=booking.subtotal_amount, gst_amount=booking.gst_amount,
+        total_amount=booking.total_amount, paid_amount=booking.total_amount,
+        payment_mode="Razorpay", payment_id=payload.razorpay_payment_id,
+    ))
     return {"booking_no": booking.booking_no, "status": "CONFIRMED"}

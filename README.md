@@ -85,3 +85,11 @@ Use `develop` for integration testing. Promote to `main` only after online booki
 ## Repository
 
 [github.com/jey-kathirvel/online-ars](https://github.com/jey-kathirvel/online-ars)
+
+## Phase 3: booking confirmation email
+
+After a Razorpay payment is captured in full, the public booking service sends a branded HTML confirmation to the guest. The message includes the booking reference, stay dates, room and tax totals, captured payment reference, embedded peacock logo, and the cancellation/refund policy. Email delivery failure is logged and does not roll back a confirmed payment.
+
+Configure Hostinger SMTP in `.env` using the variables documented in `.env.example`. Create the `akshatroyalstay@ads-ai.in` mailbox first and set `SMTP_PASSWORD` to its mailbox password. Never commit the password. Restart `online-ars.service` after changing `.env`.
+
+Public policy pages are available at `/terms` and `/refund-policy`. Review the operating policy with the property owner before production launch.

@@ -69,6 +69,14 @@ def create_app() -> FastAPI:
     async def contact(request: Request) -> HTMLResponse:
         return render(request, "contact.html", active="contact", title="Contact Akshat Royal Stay")
 
+    @app.get("/terms", response_class=HTMLResponse)
+    async def terms(request: Request) -> HTMLResponse:
+        return render(request, "terms.html", active="", title="Terms & conditions")
+
+    @app.get("/refund-policy", response_class=HTMLResponse)
+    async def refund_policy(request: Request) -> HTMLResponse:
+        return render(request, "refund_policy.html", active="", title="Cancellation & refund policy")
+
     @app.get("/health")
     async def health() -> dict[str, str]:
         return {"status": "ok"}
