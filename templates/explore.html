@@ -1,19 +1,52 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="page-hero explore-hero"><p class="eyebrow">Beyond your room</p><h1>One stay. A world of day trips.</h1><p>From misty tea country to sacred temples and refreshing waterfalls, Bodinayakanur places remarkable experiences within easy reach.</p></section>
-<section class="section destinations">
-  {% set places = [
-    ('01','Munnar','Tea gardens · Mountain views','A beloved hill station of rolling tea plantations, waterfalls and cool mountain air—ideal for a full-day scenic escape.'),
-    ('02','Meghamalai','High Wavy Mountains · Nature','A quieter mountain paradise with winding ghat roads, green valleys, reservoirs and abundant wildlife.'),
-    ('03','Thekkady','Wildlife · Spice country','Cruise Periyar Lake, explore spice plantations and experience one of Kerala’s most celebrated nature destinations.'),
-    ('04','Kodaikanal','Lake · Pine forests','Enjoy Coaker’s Walk, the lake, Pillar Rocks, flower gardens and the timeless charm of the Princess of Hill Stations.'),
-    ('05','Suruli Falls','Waterfalls · Western Ghats','Feel the mist and refreshing energy of this celebrated cascade amid the natural beauty of the Western Ghats.'),
-    ('06','Vaigai Dam','Gardens · Family day out','Tranquil waters, landscaped gardens and mountain views make this an easy, family-friendly excursion.'),
-    ('07','Veerapandi Temple','Heritage · Spirituality','Visit the revered Gowmariamman Temple on the banks of the Mullai River and experience its living traditions.'),
-    ('08','Kuchanur Temple','Pilgrimage · Peace','Seek blessings at one of India’s rare temples dedicated to Lord Saneeswaran, set in the Theni countryside.')
-  ] %}
-  <div class="section-heading"><p class="eyebrow dark">Curated for curious travellers</p><h2>Choose your direction.</h2><p>Our team can help with local advice, travel planning and car rentals.</p></div>
-  <div class="destination-grid">{% for number, name, meta, copy in places %}<article><span>{{ number }}</span><p class="place-meta">{{ meta }}</p><h3>{{ name }}</h3><p>{{ copy }}</p></article>{% endfor %}</div>
+<section class="page-hero explore-hero">
+  <p class="eyebrow">Places to visit</p>
+  <h1>Follow the road<br>into wonder.</h1>
+  <p>Tea-covered mountains, wildlife-rich forests, sacred temples and refreshing waterfalls—all within reach of Akshat Royal Stay.</p>
 </section>
+
+<section class="section trip-intro">
+  <div><p class="eyebrow dark">Recommended day trips</p><h2>Wake up here.<br><em>Explore everywhere.</em></h2></div>
+  <div><p class="large-copy">Our location in Bodinayakanur makes a beautiful base for discovering Tamil Nadu and Kerala. Start early, spend the day in the hills, and return to a comfortable room by evening.</p><p>We can help guests plan sightseeing routes and arrange dependable local travel.</p></div>
+</section>
+
+<section class="featured-places section">
+  <article class="place-feature">
+    <img src="/static/images/explore-temple.webp" alt="Sunrise over green tea plantations in Munnar" loading="eager">
+    <div><span class="place-number">01</span><p class="eyebrow dark">Approximately 52 km · Full-day tour</p><h2>Munnar</h2><p>One of South India’s most loved hill stations, Munnar unfolds through endless tea plantations, mist-covered mountains, winding roads and waterfalls. Enjoy the cool climate, famous viewpoints and local cuisine before returning comfortably by evening.</p><p class="place-tags">Tea country · Mountain views · Waterfalls</p></div>
+  </article>
+
+  <article class="place-feature reverse">
+    <img src="/static/images/explore-waterfall.webp" alt="Boats on Kodaikanal Lake surrounded by misty forest" loading="lazy">
+    <div><span class="place-number">02</span><p class="eyebrow dark">Around 2 hours · Hill-station escape</p><h2>Kodaikanal</h2><p>Take a peaceful walk along Coaker’s Walk, enjoy boating on Kodaikanal Lake and admire panoramic views from Pillar Rocks. Pine forests, waterfalls, flower gardens and lively local markets make every visit memorable.</p><p class="place-tags">Lake · Pine forests · Viewpoints</p></div>
+  </article>
+
+  <article class="place-feature">
+    <img src="/static/images/explore-idukki.webp" alt="Ramakkalmedu hilltop viewpoint overlooking the mountains of Idukki" loading="lazy">
+    <div><span class="place-number">03</span><p class="eyebrow dark">Kerala highlands · Nature and wildlife</p><h2>Idukki</h2><p>Discover the iconic Idukki Dam, Ramakkalmedu’s sweeping views, spice plantations and the wildlife-rich forests around Periyar. Serene landscapes and celebrated eco-tourism experiences make Idukki ideal for a rewarding day excursion.</p><p class="place-tags">Dams · Spice country · Eco-tourism</p></div>
+  </article>
+
+  <article class="place-feature reverse">
+    <img src="/static/images/explore-meghamalai.webp" alt="Rolling tea estates across the misty Meghamalai hills" loading="lazy">
+    <div><span class="place-number">04</span><p class="eyebrow dark">High Wavy Mountains · Hidden paradise</p><h2>Meghamalai</h2><p>Climb scenic ghat roads into rolling valleys, tranquil reservoirs and cool mountain air. Part of the ecosystem surrounding the Srivilliputhur Meghamalai Tiger Reserve, this quiet landscape rewards nature lovers and photographers at every turn.</p><p class="place-tags">Tea estates · Wildlife · Panoramas</p></div>
+  </article>
+
+  <article class="place-feature">
+    <img src="/static/images/explore-munnar.webp" alt="Colourful traditional temple shrine in Theni district" loading="lazy">
+    <div><span class="place-number">05</span><p class="eyebrow dark">Theni district · Sacred heritage</p><h2>Temple trail</h2><p>Visit Veerapandi Gowmariyamman Temple on the banks of the Mullai River, then seek blessings at Kuchanur Saneeswaran Temple—one of India’s rare shrines where Lord Saneeswaran is worshipped as the presiding deity.</p><p class="place-tags">Veerapandi · Kuchanur · Living traditions</p></div>
+  </article>
+</section>
+
+<section class="section quick-trips muted">
+  <div class="section-heading"><p class="eyebrow dark">More ways to spend the day</p><h2>Nature, wildlife and easy family outings.</h2></div>
+  <div class="trip-card-grid">
+    <article><span>06</span><h3>Thekkady</h3><p>Cruise Periyar Lake, look for elephants and deer, and explore Kerala’s aromatic cardamom and pepper plantations.</p><small>Wildlife · Boating · Spice gardens</small></article>
+    <article><span>07</span><h3>Suruli Falls</h3><p>Feel the mist and hear the rush of cascading water in a refreshing Western Ghats setting loved by families and photographers.</p><small>Waterfall · Nature · Photography</small></article>
+    <article><span>08</span><h3>Vaigai Dam</h3><p>Spend an easy afternoon beside tranquil waters, landscaped gardens and broad mountain views.</p><small>Gardens · Family outing · Views</small></article>
+    <article><span>09</span><h3>Bodimettu & Kolukkumalai</h3><p>Follow mountain roads toward unforgettable sunrise viewpoints and some of the world’s highest tea-growing country.</p><small>Sunrise · Mountain roads · Tea</small></article>
+  </div>
+</section>
+
 <section class="location-banner"><div><p class="eyebrow">Travel your way</p><h2>Need a car and a plan?</h2><p>Tell us what you love—mountains, wildlife, temples or waterfalls—and we will help shape the day.</p></div><a class="button outline-button" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Plan on WhatsApp</a></section>
 {% endblock %}
