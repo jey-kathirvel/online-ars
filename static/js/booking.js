@@ -348,26 +348,27 @@ async function loadCalendar() {
   bookingCalendar.setAttribute('aria-busy', 'true');
   clearCalendarSuggestion();
 
-  const startDate = localDateString(
-    new Date(
-      calendarCursor.getFullYear(),
-      calendarCursor.getMonth(),
-      1,
-    ),
+  const firstMonth = new Date(
+    calendarCursor.getFullYear(),
+    calendarCursor.getMonth(),
+    1,
   );
 
-  const lastDate = new Date(
+  const thirdMonthEnd = new Date(
     calendarCursor.getFullYear(),
-    calendarCursor.getMonth() + 1,
+    calendarCursor.getMonth() + 3,
     0,
   );
 
-  const days = lastDate.getDate();
+  const totalDays =
+    Math.floor(
+      (thirdMonthEnd - firstMonth) / 86400000,
+    ) + 1;
 
   const params = new URLSearchParams({
     room_type_id: String(roomTypeId),
-    start_date: startDate,
-    days: String(days),
+    start_date: localDateString(firstMonth),
+    days: String(totalDays),
     stay_days: String(numberOfStayDays()),
     check_in_time: time24(
       form.elements.check_in_hour.value,
@@ -388,16 +389,16 @@ async function loadCalendar() {
 
     if (!response.ok) {
       throw new Error(
-        result.detail || 'Unable to load availability calendar',
+        result.detail || 'Unable to load calendar',
       );
     }
 
     calendarData = result;
 
     calendarDescription.textContent =
-      `${result.room_type} · Select an available check-in date.`;
+      `${result.room_type} · Live availability for the next 3 months`;
 
-    renderCalendar();
+    renderThreeMonthCalendar();
 
     if (
       checkInDateInput.value &&
@@ -405,16 +406,21 @@ async function loadCalendar() {
     ) {
       showCalendarSuggestion(result.next_available_date);
     }
+
   } catch (error) {
+
     calendarData = null;
+
     bookingCalendar.innerHTML =
       `<p class="booking-calendar-error">${error.message}</p>`;
+
   } finally {
+
     calendarLoading.hidden = true;
     bookingCalendar.removeAttribute('aria-busy');
+
   }
 }
-
 async function checkAvailability() {
   const p = payload();
 
@@ -754,3 +760,173 @@ checkOutDateInput.min = localDateString(
 );
 
 renderCalendar();
+
+function renderThreeMonthCalendar() {
+  if (!bookingCalendar) return;
+
+  bookingCalendar.innerHTML = '';
+
+  const firstMonth = new Date(
+    calendarCursor.getFullYear(),
+    calendarCursor.getMonth(),
+    1,
+  );
+
+  const lastMonth = new Date(
+    calendarCursor.getFullYear(),
+    calendarCursor.getMonth() + 2,
+    1,
+  );
+
+  calendarMonthLabel.textContent =
+    `${firstMonth.toLocaleDateString('en-IN', {
+      month: 'short',
+      year: 'numeric',
+    })} – ${lastMonth.toLocaleDateString('en-IN', {
+      month: 'short',
+      year: 'numeric',
+    })}`;
+
+  const monthsWrapper = document.createElement('div');
+  monthsWrapper.className = 'booking-calendar-months';
+
+  const dataByDate = inventoryMap();
+
+  const weekdayNames = [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+  ];
+
+  for (let monthOffset = 0; monthOffset < 3; monthOffset += 1) {
+    const monthDate = new Date(
+      calendarCursor.getFullYear(),
+      calendarCursor.getMonth() + monthOffset,
+      1,
+    );
+
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+
+    const monthPanel = document.createElement('section');
+    monthPanel.className = 'booking-calendar-month';
+
+    const monthTitle = document.createElement('h4');
+    monthTitle.textContent = monthDate.toLocaleDateString(
+      'en-IN',
+      {
+        month: 'long',
+        year: 'numeric',
+      },
+    );
+
+    monthPanel.appendChild(monthTitle);
+
+    const weekdayRow = document.createElement('div');
+    weekdayRow.className = 'booking-calendar-weekdays';
+
+    for (const weekday of weekdayNames) {
+      const label = document.createElement('span');
+      label.textContent = weekday;
+      weekdayRow.appendChild(label);
+    }
+
+    monthPanel.appendChild(weekdayRow);
+
+    const grid = document.createElement('div');
+    grid.className = 'booking-calendar-grid';
+
+    const firstDay = new Date(year, month, 1);
+    const leadingDays = firstDay.getDay();
+    const daysInMonth = new Date(
+      year,
+      month + 1,
+      0,
+    ).getDate();
+
+    for (
+      let index = 0;
+      index < leadingDays;
+      index += 1
+    ) {
+      const blank = document.createElement('span');
+      blank.className =
+        'calendar-day calendar-day-empty';
+      blank.setAttribute('aria-hidden', 'true');
+      grid.appendChild(blank);
+    }
+
+    for (
+      let day = 1;
+      day <= daysInMonth;
+      day += 1
+    ) {
+      const date = new Date(year, month, day);
+      const dateValue = localDateString(date);
+      const item = dataByDate.get(dateValue);
+
+      const isPast = date < today;
+      const disabled =
+        isPast || isDateDisabled(dateValue, item);
+
+      const selected =
+        checkInDateInput.value === dateValue;
+
+      const button = document.createElement('button');
+
+      button.type = 'button';
+      button.className = 'calendar-day';
+      button.dataset.date = dateValue;
+
+      if (selected) {
+        button.classList.add('selected');
+      }
+
+      if (disabled) {
+        button.classList.add('sold-out');
+        button.disabled = true;
+      } else {
+        button.classList.add('available');
+      }
+
+      const dateNumber =
+        document.createElement('strong');
+
+      dateNumber.textContent = String(day);
+
+      const inventoryText =
+        document.createElement('small');
+
+      if (isPast) {
+        inventoryText.textContent = 'Past';
+      } else if (!item) {
+        inventoryText.textContent = 'Unavailable';
+      } else if (disabled) {
+        inventoryText.textContent = 'Sold out';
+      } else {
+        inventoryText.textContent =
+          `${item.available_count} left`;
+      }
+
+      button.appendChild(dateNumber);
+      button.appendChild(inventoryText);
+
+      if (!disabled) {
+        button.addEventListener('click', () => {
+          selectCalendarDate(dateValue);
+        });
+      }
+
+      grid.appendChild(button);
+    }
+
+    monthPanel.appendChild(grid);
+    monthsWrapper.appendChild(monthPanel);
+  }
+
+  bookingCalendar.appendChild(monthsWrapper);
+}

@@ -419,3 +419,74 @@ button.calendar-day.available:focus-visible {
     gap: 0.75rem 1rem;
   }
 }
+
+/* =====================================================
+   PATCH-003
+   Three-month booking availability calendar
+===================================================== */
+
+.booking-calendar-months {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.booking-calendar-month {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.booking-calendar-month h4 {
+    margin: 0 0 14px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.booking-calendar-month .booking-calendar-weekdays {
+    margin-bottom: 8px;
+}
+
+.booking-calendar-month .calendar-day {
+    min-height: 58px;
+    padding: 7px 3px;
+}
+
+.booking-calendar-month .calendar-day strong {
+    font-size: 0.95rem;
+}
+
+.booking-calendar-month .calendar-day small {
+    font-size: 0.66rem;
+}
+
+@media (max-width: 1100px) {
+    .booking-calendar-months {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-calendar-month {
+        max-width: 620px;
+        width: 100%;
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .booking-calendar-month {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .booking-calendar-month .calendar-day {
+        min-height: 48px;
+        padding: 5px 2px;
+    }
+
+    .booking-calendar-month .calendar-day small {
+        display: none;
+    }
+}
