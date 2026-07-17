@@ -9,6 +9,11 @@ class Settings(BaseSettings):
     app_url: str = "https://online.akshatroyalstay.in"
     contact_email: str = "ars.familystay@gmail.com"
     contact_phone: str = "+919092977055"
+    database_url: str = "sqlite:///./online_ars.db"
+    razorpay_key_id: str = ""
+    razorpay_key_secret: str = ""
+    booking_gst_percent: float = 5.0
+    booking_hold_minutes: int = 10
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

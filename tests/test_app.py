@@ -10,7 +10,7 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 def test_public_pages_render() -> None:
-    for path in ["/", "/rooms", "/book", "/explore", "/contact"]:
+    for path in ["/", "/rooms", "/book", "/explore", "/contact", "/booking/confirmed?booking_no=ON-TEST"]:
         response = client.get(path)
         assert response.status_code == 200
         assert "Akshat Royal Stay" in response.text

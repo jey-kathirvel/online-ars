@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .config import get_settings
+from .booking_routes import router as booking_router
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,6 +16,7 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title=settings.app_name)
+    app.include_router(booking_router)
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
     common = {
@@ -43,7 +45,21 @@ def create_app() -> FastAPI:
 
     @app.get("/book", response_class=HTMLResponse)
     async def book(request: Request) -> HTMLResponse:
-        return render(request, "book.html", active="book", title="Book your stay")
+        return render(
+            request, "book.html", active="book", title="Book your stay",
+            room_types=(
+                {"id": 1, "name": "AC Double Room", "rate": 1899},
+                {"id": 2, "name": "Non-AC Double Room", "rate": 1499},
+                {"id": 3, "name": "Non-AC Single Room", "rate": 1099},
+            ),
+        )
+
+    @app.get("/booking/confirmed", response_class=HTMLResponse)
+    async def booking_confirmed(request: Request, booking_no: str = "") -> HTMLResponse:
+        return render(
+            request, "booking_confirmed.html", active="book",
+            title="Booking confirmed", booking_no=booking_no[:30],
+        )
 
     @app.get("/explore", response_class=HTMLResponse)
     async def explore(request: Request) -> HTMLResponse:

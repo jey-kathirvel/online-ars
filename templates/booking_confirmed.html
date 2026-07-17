@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="confirmation-page">
+  <div class="confirmation-mark">✓</div>
+  <p class="eyebrow dark">Payment received</p>
+  <h1>Your stay is confirmed.</h1>
+  <p>Thank you for choosing Akshat Royal Stay. Your booking reference is:</p>
+  <strong class="confirmation-number">{{ booking_no }}</strong>
+  <p>Please keep this number handy. We look forward to welcoming you to Bodinayakanur.</p>
+  <div class="actions"><a class="button dark-button" href="/">Return home</a><a class="text-link" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Message us <span>→</span></a></div>
+</section>
+{% endblock %}

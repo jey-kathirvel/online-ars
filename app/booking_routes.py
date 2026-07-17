@@ -1,0 +1,189 @@
+from datetime import datetime, timedelta
+from uuid import uuid4
+
+import razorpay
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field, field_validator
+from razorpay.errors import SignatureVerificationError
+from sqlalchemy.orm import Session
+
+from .booking_models import Booking, BookingPayment, BookingRoom, RoomType
+from .booking_service import (
+    available_rooms, calculate_checkout, calculate_price, lock_room_type,
+    release_expired_holds,
+)
+from .config import get_settings
+from .database import get_db
+
+
+router = APIRouter(prefix="/api/booking", tags=["booking"])
+settings = get_settings()
+
+
+class BookingRequest(BaseModel):
+    guest_name: str = Field(min_length=2, max_length=150)
+    mobile: str
+    email: str = Field(max_length=254)
+    room_type_id: int = Field(gt=0)
+    check_in_at: datetime
+    number_of_days: int = Field(ge=1, le=30)
+    number_of_rooms: int = Field(ge=1, le=5)
+
+    @field_validator("mobile")
+    @classmethod
+    def validate_mobile(cls, value: str) -> str:
+        value = value.strip()
+        if len(value) != 10 or not value.isdigit():
+            raise ValueError("Enter a valid 10-digit mobile number")
+        return value
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        value = value.strip().lower()
+        if "@" not in value or "." not in value.rsplit("@", 1)[-1]:
+            raise ValueError("Enter a valid email address")
+        return value
+
+
+class ConfirmationRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+
+
+def payment_client():
+    if not settings.razorpay_key_id or not settings.razorpay_key_secret:
+        raise HTTPException(503, "Online payment is temporarily unavailable")
+    return razorpay.Client(auth=(settings.razorpay_key_id, settings.razorpay_key_secret))
+
+
+def get_active_room_type(db: Session, room_type_id: int):
+    room_type = db.query(RoomType).filter(
+        RoomType.id == room_type_id, RoomType.is_active.is_(True)
+    ).first()
+    if room_type is None:
+        raise HTTPException(404, "Room type not found")
+    return room_type
+
+
+@router.get("/availability")
+def availability(room_type_id: int, check_in_at: datetime, number_of_days: int = 1,
+                 number_of_rooms: int = 1, db: Session = Depends(get_db)):
+    if not 1 <= number_of_days <= 30 or not 1 <= number_of_rooms <= 5:
+        raise HTTPException(400, "Invalid stay details")
+    if check_in_at < datetime.utcnow() - timedelta(minutes=5):
+        raise HTTPException(400, "Check-in must be in the future")
+    room_type = get_active_room_type(db, room_type_id)
+    checkout = calculate_checkout(check_in_at, number_of_days)
+    rooms = available_rooms(db, room_type_id, check_in_at, checkout)
+    subtotal, gst, total = calculate_price(
+        room_type.room_rate, number_of_rooms, number_of_days, settings.booking_gst_percent
+    )
+    return {
+        "available": len(rooms) >= number_of_rooms,
+        "available_count": len(rooms),
+        "check_out_at": checkout.isoformat(),
+        "room_rate": float(room_type.room_rate),
+        "subtotal": float(subtotal), "gst_percent": settings.booking_gst_percent,
+        "gst_amount": float(gst), "total": float(total),
+    }
+
+
+@router.post("/order")
+def create_order(payload: BookingRequest, db: Session = Depends(get_db)):
+    now = datetime.utcnow()
+    if payload.check_in_at < now - timedelta(minutes=5):
+        raise HTTPException(400, "Check-in must be in the future")
+    lock_room_type(db, payload.room_type_id)
+    release_expired_holds(db)
+    room_type = get_active_room_type(db, payload.room_type_id)
+    checkout = calculate_checkout(payload.check_in_at, payload.number_of_days)
+    rooms = available_rooms(db, payload.room_type_id, payload.check_in_at, checkout)
+    if len(rooms) < payload.number_of_rooms:
+        raise HTTPException(409, "The requested room is no longer available")
+    selected = rooms[:payload.number_of_rooms]
+    subtotal, gst, total = calculate_price(
+        room_type.room_rate, payload.number_of_rooms, payload.number_of_days,
+        settings.booking_gst_percent,
+    )
+    amount_paise = round(float(total) * 100)
+    try:
+        order = payment_client().order.create({
+            "amount": amount_paise, "currency": "INR",
+            "receipt": f"online-{uuid4().hex[:24]}",
+            "notes": {"purpose": "online_hotel_booking"},
+        })
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(502, "Unable to start payment") from exc
+    expires_at = now + timedelta(minutes=settings.booking_hold_minutes)
+    booking = Booking(
+        booking_no="ON-" + now.strftime("%Y%m%d%H%M%S") + uuid4().hex[:5].upper(),
+        guest_name=payload.guest_name.strip(), mobile=payload.mobile, email=payload.email,
+        check_in_at=payload.check_in_at, check_out_at=checkout,
+        number_of_days=payload.number_of_days, room_type_id=payload.room_type_id,
+        number_of_rooms=payload.number_of_rooms, room_rate=room_type.room_rate,
+        subtotal_amount=subtotal, gst_percent=settings.booking_gst_percent, gst_amount=gst,
+        total_amount=total, advance_amount=0, payment_mode="RAZORPAY",
+        booking_source="ONLINE", payment_expires_at=expires_at,
+        provider_order_id=order["id"], status="RESERVED", notes=None,
+        created_at=now, updated_at=now,
+    )
+    db.add(booking)
+    db.flush()
+    for room in selected:
+        db.add(BookingRoom(booking_id=booking.id, room_id=room.id, status="ACTIVE",
+                           cancelled_at=None, cancellation_reason=None, created_at=now))
+    db.commit()
+    return {
+        "key_id": settings.razorpay_key_id, "order_id": order["id"],
+        "amount": amount_paise, "currency": "INR", "expires_at": expires_at.isoformat(),
+        "booking_no": booking.booking_no,
+    }
+
+
+@router.post("/confirm")
+def confirm_payment(payload: ConfirmationRequest, db: Session = Depends(get_db)):
+    booking = db.query(Booking).filter(
+        Booking.provider_order_id == payload.razorpay_order_id,
+        Booking.booking_source == "ONLINE",
+    ).with_for_update().first()
+    if booking is None:
+        raise HTTPException(404, "Booking hold not found")
+    existing = db.query(BookingPayment).filter(
+        BookingPayment.provider_payment_id == payload.razorpay_payment_id
+    ).first()
+    if existing:
+        return {"booking_no": booking.booking_no, "status": "CONFIRMED"}
+    if booking.status != "RESERVED" or not booking.payment_expires_at or booking.payment_expires_at <= datetime.utcnow():
+        raise HTTPException(409, "The room hold has expired; please contact us with your payment ID")
+    client = payment_client()
+    try:
+        client.utility.verify_payment_signature(payload.model_dump())
+        order = client.order.fetch(payload.razorpay_order_id)
+        payment = client.payment.fetch(payload.razorpay_payment_id)
+    except SignatureVerificationError as exc:
+        raise HTTPException(400, "Payment verification failed") from exc
+    except Exception as exc:
+        raise HTTPException(502, "Unable to verify payment") from exc
+    expected = round(float(booking.total_amount) * 100)
+    if (order.get("amount") != expected or order.get("currency") != "INR"
+            or payment.get("amount") != expected
+            or payment.get("order_id") != payload.razorpay_order_id
+            or payment.get("status") != "captured"):
+        raise HTTPException(400, "Payment is not captured or the full amount was not paid")
+    now = datetime.utcnow()
+    booking.status = "CONFIRMED"
+    booking.advance_amount = booking.total_amount
+    booking.payment_expires_at = None
+    booking.updated_at = now
+    db.add(BookingPayment(
+        booking_id=booking.id, provider="RAZORPAY",
+        provider_order_id=payload.razorpay_order_id,
+        provider_payment_id=payload.razorpay_payment_id,
+        amount=booking.total_amount, currency="INR", status="CAPTURED", created_at=now,
+    ))
+    db.commit()
+    return {"booking_no": booking.booking_no, "status": "CONFIRMED"}
