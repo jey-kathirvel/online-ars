@@ -490,3 +490,384 @@ button.calendar-day.available:focus-visible {
         display: none;
     }
 }
+
+/* =====================================================
+   PATCH-004
+   Clean single-month booking calendar UI
+===================================================== */
+
+.booking-calendar-months {
+    display: block;
+}
+
+#bookingCalendar {
+    max-width: 620px;
+    margin: 24px auto 0;
+}
+
+.booking-calendar-weekdays,
+.booking-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.booking-calendar-weekdays {
+    margin-bottom: 10px;
+}
+
+.booking-calendar-weekdays span {
+    min-height: 36px;
+    display: grid;
+    place-items: center;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #315c5a;
+    background: #f1f8f6;
+    border: 1px solid #d4e6e2;
+}
+
+.calendar-day {
+    min-width: 0;
+    min-height: 74px;
+    padding: 9px 4px;
+    border: 1px solid #dbe6e3;
+    border-radius: 10px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    overflow: hidden;
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.calendar-day strong {
+    display: block;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.calendar-day small {
+    display: block;
+    max-width: 100%;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.calendar-day.available {
+    color: #075f5c;
+    background: #f4fbf9;
+    border-color: #b9ddd6;
+}
+
+.calendar-day.available:hover {
+    transform: translateY(-2px);
+    border-color: #178b84;
+    box-shadow: 0 8px 18px rgba(8, 91, 86, 0.12);
+}
+
+.calendar-day.selected {
+    color: #ffffff;
+    background: #0b6f6a;
+    border-color: #0b6f6a;
+    box-shadow: 0 0 0 3px rgba(217, 164, 54, 0.28);
+}
+
+.calendar-day.sold-out {
+    color: #9a5148;
+    background: #fff5f2;
+    border-color: #f0d4cf;
+    opacity: 0.82;
+    cursor: not-allowed;
+}
+
+.calendar-day-empty {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.booking-calendar-controls {
+    gap: 14px;
+}
+
+.booking-calendar-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    #bookingCalendar {
+        max-width: none;
+        margin-top: 18px;
+    }
+
+    .booking-calendar-weekdays,
+    .booking-calendar-grid {
+        gap: 4px;
+    }
+
+    .booking-calendar-weekdays span {
+        min-height: 30px;
+        font-size: 0.62rem;
+    }
+
+    .calendar-day {
+        min-height: 54px;
+        padding: 6px 2px;
+        border-radius: 7px;
+    }
+
+    .calendar-day strong {
+        font-size: 0.88rem;
+    }
+
+    .calendar-day small {
+        font-size: 0.58rem;
+    }
+}
+
+/* =====================================================
+   PATCH-005
+   Booking date and time field alignment fix
+===================================================== */
+
+.stay-date-card {
+    min-width: 0;
+}
+
+.stay-date-card > div:last-child {
+    display: grid;
+    grid-template-columns: minmax(150px, 1.25fr) minmax(210px, 1.75fr);
+    gap: 18px;
+    align-items: end;
+}
+
+.stay-date-card label {
+    min-width: 0;
+}
+
+.stay-date-card input[type="date"] {
+    width: 100%;
+    min-width: 150px;
+    height: 52px;
+    padding: 0 14px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+
+.time-field {
+    min-width: 0;
+}
+
+.time-field > div {
+    display: grid;
+    grid-template-columns:
+        minmax(62px, 1fr)
+        minmax(62px, 1fr)
+        minmax(68px, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+.time-field select {
+    width: 100%;
+    min-width: 0;
+    height: 52px;
+    padding: 0 28px 0 12px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: left;
+    text-align-last: left;
+    box-sizing: border-box;
+    appearance: auto;
+}
+
+.time-field select option {
+    font-size: 1rem;
+}
+
+@media (max-width: 900px) {
+    .stay-date-card > div:last-child {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .stay-date-card input[type="date"] {
+        min-width: 0;
+    }
+
+    .time-field > div {
+        grid-template-columns: repeat(3, minmax(72px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .time-field > div {
+        gap: 6px;
+        grid-template-columns:
+            minmax(64px, 1fr)
+            minmax(64px, 1fr)
+            minmax(70px, 1fr);
+    }
+
+    .time-field select {
+        height: 48px;
+        padding-left: 10px;
+        padding-right: 24px;
+        font-size: 0.86rem;
+    }
+
+    .stay-date-card input[type="date"] {
+        height: 48px;
+        font-size: 0.88rem;
+    }
+}
+
+/* =====================================================
+   PATCH-005B
+   Final date/time card overflow fix
+===================================================== */
+
+.stay-date-card {
+    overflow: hidden;
+}
+
+.stay-date-card > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    width: 100%;
+}
+
+.stay-date-card label,
+.stay-date-card fieldset {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.stay-date-card input[type="date"] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    box-sizing: border-box;
+}
+
+.time-field > div {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.time-field select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 52px;
+    padding: 0 30px 0 12px;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    .time-field > div {
+        gap: 6px;
+    }
+
+    .time-field select,
+    .stay-date-card input[type="date"] {
+        height: 48px;
+    }
+
+    .time-field select {
+        padding-left: 9px;
+        padding-right: 24px;
+        font-size: 0.84rem;
+    }
+}
+
+/* =====================================================
+   PATCH-005C
+   Final desktop date/time layout correction
+===================================================== */
+
+.stay-date-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+    overflow: hidden;
+}
+
+.stay-date-card .stay-card-heading,
+.stay-date-card > label.modern-field,
+.stay-date-card > fieldset.time-field {
+    grid-column: 1 / -1 !important;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+.stay-date-card input[type="date"] {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    height: 52px;
+    box-sizing: border-box;
+}
+
+.stay-date-card .time-field > div {
+    display: grid !important;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+.stay-date-card .time-field select {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    height: 52px;
+    padding: 0 30px 0 12px;
+    box-sizing: border-box;
+    text-align: left;
+    text-align-last: left;
+}
+
+@media (max-width: 480px) {
+    .stay-date-card {
+        gap: 12px !important;
+    }
+
+    .stay-date-card .time-field > div {
+        gap: 6px;
+    }
+
+    .stay-date-card input[type="date"],
+    .stay-date-card .time-field select {
+        height: 48px;
+    }
+}

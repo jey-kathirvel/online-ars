@@ -90,7 +90,7 @@ function time24(hour, minute, period) {
     value += 12;
   }
 
-  return `${pad(value)}:${minute}:00`;
+  return `${pad(value)}:${pad(minute)}`;
 }
 
 function payload() {
@@ -354,16 +354,13 @@ async function loadCalendar() {
     1,
   );
 
-  const thirdMonthEnd = new Date(
+  const monthEnd = new Date(
     calendarCursor.getFullYear(),
-    calendarCursor.getMonth() + 3,
+    calendarCursor.getMonth() + 1,
     0,
   );
 
-  const totalDays =
-    Math.floor(
-      (thirdMonthEnd - firstMonth) / 86400000,
-    ) + 1;
+  const totalDays = monthEnd.getDate();
 
   const params = new URLSearchParams({
     room_type_id: String(roomTypeId),
@@ -396,9 +393,9 @@ async function loadCalendar() {
     calendarData = result;
 
     calendarDescription.textContent =
-      `${result.room_type} · Live availability for the next 3 months`;
+      `${result.room_type} · Live availability for the selected month`;
 
-    renderThreeMonthCalendar();
+    renderCalendar();
 
     if (
       checkInDateInput.value &&
@@ -546,13 +543,51 @@ async function checkAvailability() {
   }
 }
 
+function calendarMinimumMonth() {
+  return new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1,
+  );
+}
+
+function calendarMaximumMonth() {
+  return new Date(
+    today.getFullYear(),
+    today.getMonth() + 3,
+    1,
+  );
+}
+
+function updateCalendarNavigation() {
+  if (calendarPreviousButton) {
+    calendarPreviousButton.disabled =
+      calendarCursor <= calendarMinimumMonth();
+  }
+
+  if (calendarNextButton) {
+    calendarNextButton.disabled =
+      calendarCursor >= calendarMaximumMonth();
+  }
+}
+
 function moveCalendar(monthOffset) {
-  calendarCursor = new Date(
+  const targetMonth = new Date(
     calendarCursor.getFullYear(),
     calendarCursor.getMonth() + monthOffset,
     1,
   );
 
+  if (
+    targetMonth < calendarMinimumMonth() ||
+    targetMonth > calendarMaximumMonth()
+  ) {
+    updateCalendarNavigation();
+    return;
+  }
+
+  calendarCursor = targetMonth;
+  updateCalendarNavigation();
   loadCalendar();
 }
 
@@ -577,6 +612,11 @@ calendarPreviousButton?.addEventListener('click', () => {
 });
 
 calendarNextButton?.addEventListener('click', () => {
+  if (calendarCursor >= calendarMaximumMonth()) {
+    updateCalendarNavigation();
+    return;
+  }
+
   moveCalendar(1);
 });
 
