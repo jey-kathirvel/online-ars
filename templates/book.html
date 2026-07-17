@@ -4,14 +4,24 @@
 <section class="section online-booking-shell">
   <form id="onlineBookingForm" class="online-booking-form" novalidate>
     <div class="booking-step"><span>01</span><div><p class="eyebrow dark">Your stay</p><h2>When are you arriving?</h2></div></div>
-    <div class="form-grid">
-      <label>Room type<select name="room_type_id" required><option value="">Choose a room</option>{% for room in room_types %}<option value="{{ room.id }}">{{ room.name }} — ₹{{ room.rate }}/night</option>{% endfor %}</select></label>
-      <label>Check-in date<input name="check_in_date" type="date" required></label>
-      <fieldset class="time-field"><legend>Check-in time</legend><div><select name="check_in_hour" required aria-label="Check-in hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_in_minute" required aria-label="Check-in minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_in_period" required aria-label="Check-in AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
-      <label>Check-out date<input name="check_out_date" type="date" required></label>
-      <fieldset class="time-field"><legend>Check-out time</legend><div><select name="check_out_hour" required aria-label="Check-out hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_out_minute" required aria-label="Check-out minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_out_period" required aria-label="Check-out AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
-      <label>Number of rooms<input name="number_of_rooms" type="number" min="1" max="5" value="1" required></label>
-      <label>Occupants per room<select name="occupants_per_room" required><option value="1">1 occupant</option><option value="2" selected>2 occupants — included</option><option value="3">3 occupants — ₹500 extra/day + GST</option></select></label>
+    <div class="stay-planner">
+      <label class="modern-field room-type-field"><span class="field-label"><b>⌂</b> Room type</span><select name="room_type_id" required><option value="">Choose a room</option>{% for room in room_types %}<option value="{{ room.id }}">{{ room.name }} — ₹{{ room.rate }}/night</option>{% endfor %}</select></label>
+      <div class="stay-date-card arrival-card">
+        <div class="stay-card-heading"><span class="stay-card-icon">↘</span><div><small>ARRIVAL</small><strong>Check in</strong></div></div>
+        <label class="modern-field"><span class="field-label">Date</span><input name="check_in_date" type="date" required></label>
+        <fieldset class="time-field modern-field"><legend>Time</legend><div><select name="check_in_hour" required aria-label="Check-in hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_in_minute" required aria-label="Check-in minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_in_period" required aria-label="Check-in AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
+      </div>
+      <div class="stay-date-card departure-card">
+        <div class="stay-card-heading"><span class="stay-card-icon">↗</span><div><small>DEPARTURE</small><strong>Check out</strong></div></div>
+        <label class="modern-field"><span class="field-label">Date</span><input name="check_out_date" type="date" required></label>
+        <fieldset class="time-field modern-field"><legend>Time</legend><div><select name="check_out_hour" required aria-label="Check-out hour">{% for hour in range(1,13) %}<option value="{{ hour }}">{{ '%02d'|format(hour) }}</option>{% endfor %}</select><select name="check_out_minute" required aria-label="Check-out minute"><option>00</option><option>15</option><option>30</option><option>45</option></select><select name="check_out_period" required aria-label="Check-out AM or PM"><option>AM</option><option>PM</option></select></div></fieldset>
+      </div>
+      <div class="stay-occupancy-card">
+        <div class="stay-card-heading"><span class="stay-card-icon">♙</span><div><small>ROOM SETUP</small><strong>Guests & rooms</strong></div></div>
+        <label class="modern-field"><span class="field-label">Number of rooms</span><input name="number_of_rooms" type="number" min="1" max="5" value="1" required></label>
+        <label class="modern-field"><span class="field-label">Occupants per room</span><select name="occupants_per_room" required><option value="1">1 occupant</option><option value="2" selected>2 occupants — included</option><option value="3">3 occupants — ₹500 extra/day + GST</option></select></label>
+        <p class="occupancy-note"><span>✓</span> Two guests are included in every room tariff.</p>
+      </div>
     </div>
     <div id="availabilityPanel" class="availability-panel" aria-live="polite">Select your stay details to check live availability.</div>
 
