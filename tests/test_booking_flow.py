@@ -128,3 +128,115 @@ def test_active_test_room_type_appears_in_public_dropdown():
     assert availability.status_code == 200
     assert availability.json()["total"] == 5.25
     app.dependency_overrides.clear()
+
+
+def test_booking_calendar_returns_sold_out_and_next_available_date(monkeypatch):
+    app.dependency_overrides[get_db] = override_db
+    monkeypatch.setattr(
+        booking_routes,
+        "payment_client",
+        lambda: FakeClient(),
+    )
+
+    client = TestClient(app)
+
+    check_in = (
+        datetime.utcnow() + timedelta(days=3)
+    ).replace(
+        hour=10,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    order_response = client.post(
+        "/api/booking/order",
+        json={
+            "guest_name": "Calendar Test Guest",
+            "mobile": "9092977055",
+            "email": "calendar@example.com",
+            "room_type_id": 1,
+            "check_in_at": check_in.isoformat(),
+            "check_out_at": (
+                check_in + timedelta(days=1)
+            ).isoformat(),
+            "number_of_rooms": 1,
+            "occupants_per_room": 2,
+        },
+    )
+
+    assert order_response.status_code == 200
+
+    calendar_response = client.get(
+        "/api/booking/calendar",
+        params={
+            "room_type_id": 1,
+            "start_date": check_in.date().isoformat(),
+            "days": 3,
+            "stay_days": 1,
+            "check_in_time": "10:00",
+            "number_of_rooms": 1,
+        },
+    )
+
+    assert calendar_response.status_code == 200
+
+    result = calendar_response.json()
+
+    sold_out_date = check_in.date().isoformat()
+    next_date = (
+        check_in.date() + timedelta(days=1)
+    ).isoformat()
+
+    assert sold_out_date in result["disabled_dates"]
+    assert result["next_available_date"] == next_date
+
+    assert result["inventory"][0] == {
+        "date": sold_out_date,
+        "available": False,
+        "available_count": 0,
+    }
+
+    assert result["inventory"][1] == {
+        "date": next_date,
+        "available": True,
+        "available_count": 1,
+    }
+
+    app.dependency_overrides.clear()
+
+
+def test_booking_calendar_rejects_invalid_room_type():
+    app.dependency_overrides[get_db] = override_db
+
+    response = TestClient(app).get(
+        "/api/booking/calendar",
+        params={
+            "room_type_id": 99999,
+            "days": 30,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Room type not found"
+
+    app.dependency_overrides.clear()
+
+
+def test_booking_calendar_validates_calendar_range():
+    app.dependency_overrides[get_db] = override_db
+
+    response = TestClient(app).get(
+        "/api/booking/calendar",
+        params={
+            "room_type_id": 1,
+            "days": 366,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "Calendar range must be between 1 and 365 days"
+    )
+
+    app.dependency_overrides.clear()
